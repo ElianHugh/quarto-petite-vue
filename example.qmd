@@ -9,20 +9,26 @@ filters:
 ```{r}
 #| echo: false
 htmltools::tagList(
-  htmltools::tags$button("Toggle plot", "@click" = "showPlot = !showPlot")
+  htmltools::tags$button(
+    "Toggle plot",
+    "@click" = "showPlot = !showPlot"
+  )
 )
 ```
 
 ```{r}
 #| v-if: "showPlot"
 #| echo: false
-plot(1)
+plot(sin(seq(0, 50, 0.1)))
 ```
 
 ```{r}
 #| v-else: ""
 #| echo: false
-htmltools::tags$li("{{ n }}", "v-for" = "n in 5")
+htmltools::div(
+  "v-for" = sprintf("row in %s", jsonlite::toJSON(mtcars[1:5, ])),
+  htmltools::div("{{ row._row }}")
+)
 ```
 
 :::
