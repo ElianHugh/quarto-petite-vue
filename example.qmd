@@ -1,0 +1,28 @@
+---
+title: "Petite-vue Example"
+filters:
+  - petite-vue
+---
+
+:::{v-scope="{ showPlot: false }"}
+
+```{r}
+#| echo: false
+htmltools::tagList(
+  htmltools::tags$button("Toggle plot", "@click" = "showPlot = !showPlot")
+)
+```
+
+```{r}
+#| v-if: "showPlot"
+#| echo: false
+plot(1)
+```
+
+```{r}
+#| v-else: ""
+#| echo: false
+htmltools::tags$li("{{ n }}", "v-for" = "n in 5")
+```
+
+:::
