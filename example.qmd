@@ -7,24 +7,21 @@ filters:
 :::{v-scope="{ showPlot: false }"}
 
 ```{r}
-#| echo: false
-htmltools::tagList(
-  htmltools::tags$button(
-    "Toggle plot",
-    "@click" = "showPlot = !showPlot"
-  )
-)
+#| v-on:
+#|    click: "showPlot = !showPlot"
+htmltools::tags$button("Toggle plot")
 ```
+
 
 ```{r}
 #| v-if: "showPlot"
-#| echo: false
+#| v-bind:
+#|    active: "showPlot"
 plot(sin(seq(0, 50, 0.1)))
 ```
 
 ```{r}
 #| v-else: ""
-#| echo: false
 htmltools::div(
   "v-for" = sprintf("row in %s", jsonlite::toJSON(mtcars[1:5, ])),
   htmltools::div("{{ row._row }}")
