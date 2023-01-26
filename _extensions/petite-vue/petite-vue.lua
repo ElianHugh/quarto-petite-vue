@@ -28,7 +28,7 @@ local function createKVPairs(inputstr)
   --- Split rows into key value pairs separated by colons
   for _, v in pairs(rows) do
     ---@type table<string>
-    local x, y = string.match(v, "(.+):(.+)");
+    local x, y = string.match(v, '"(.+)":"(.+)"');
     kvPairs[x] = y;
   end
   return kvPairs;
@@ -55,7 +55,18 @@ local function fixColonAttributes(div)
   return div;
 end
 
+function Header(el)
+  if kIsHTML then
+    return fixColonAttributes(el);
+  else
+    return el;
+  end
+end
 
-function Div(div)
-  return fixColonAttributes(div);
+function Div(el)
+  if kIsHTML then
+    return fixColonAttributes(el);
+  else
+    return el;
+  end
 end

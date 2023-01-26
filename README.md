@@ -1,6 +1,6 @@
-# Petite-vue Extension For Quarto
+# petite-vue Extension For Quarto
 
-_TODO_: Add a short description of your extension.
+Provides access to the [petite-vue](https://github.com/vuejs/petite-vue/) JavaScript library in Quarto.
 
 ## Installing
 

@@ -1,23 +1,49 @@
 ---
-title: "Petite-vue Example"
+title: "petite-vue Example"
 filters:
   - petite-vue
 ---
 
-:::{v-scope="{ showPlot: false }"}
+:::{v-scope="{ showPlot: false, showTable: false, textbox: '' }"}
 
+## v-model
+
+```{r}
+#| foo: bar
+htmltools::tagList(
+  htmltools::tags$input("v-model" = "textbox"),
+  htmltools::p("Input is: {{ textbox }}")
+)
+```
+
+## v-on, v-bind, v-show
 ```{r}
 #| v-on:
 #|    click: "showPlot = !showPlot"
-htmltools::tags$button("Toggle plot")
+#| v-bind:
+#|    class: "showPlot ? 'active' : 'inactive'"
+htmltools::tags$button("Toggle plot ({{ showPlot ? 'active' : 'inactive'}})")
+```
+
+```{r}
+#| v-show: "showPlot"
+plot(sin(seq(0, 50, 0.1)))
 ```
 
 
+## v-if, v-else
+
 ```{r}
-#| v-if: "showPlot"
-#| v-bind:
-#|    active: "showPlot"
-plot(sin(seq(0, 50, 0.1)))
+#| v-on:
+#|    click: "showTable = !showTable"
+htmltools::tags$button(
+  "Toggle table ({{ showTable ? 'active' : 'inactive'}})"
+)
+```
+
+```{r}
+#| v-if: "showTable"
+mtcars
 ```
 
 ```{r}
