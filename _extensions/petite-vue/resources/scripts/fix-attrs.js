@@ -25,7 +25,7 @@ function removePrefix(str) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll("div").forEach(element => {
+    document.querySelectorAll("*").forEach(element => {
         prefixedDirectives.forEach((v) => {
             if (element.hasAttribute(v)) {
                 const attr = element.getAttribute(v);

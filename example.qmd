@@ -9,7 +9,6 @@ filters:
 ## v-model
 
 ```{r}
-#| foo: bar
 htmltools::tagList(
   htmltools::tags$input("v-model" = "textbox"),
   htmltools::p("Input is: {{ textbox }}")
@@ -29,7 +28,6 @@ htmltools::tags$button("Toggle plot ({{ showPlot ? 'active' : 'inactive'}})")
 #| v-show: "showPlot"
 plot(sin(seq(0, 50, 0.1)))
 ```
-
 
 ## v-if, v-else
 

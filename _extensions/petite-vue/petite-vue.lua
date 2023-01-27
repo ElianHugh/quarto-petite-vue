@@ -1,20 +1,6 @@
 local kIsHTML = quarto.doc.is_format("html:js");
 
-if (kIsHTML) then
-  quarto.doc.add_html_dependency({
-    name = "petite-vue",
-    version = "0.2.2",
-    scripts = {
-      {
-        path = "resources/scripts/fix-attrs.js"
-      },
-      {
-        path = "resources/scripts/petite-vue.iife.js",
-      }
-    }
-  })
-end
-
+---@param inputstr string
 local function createKVPairs(inputstr)
   inputstr = string.gsub(inputstr, "[{}]", "")
   ---@type table<number, string>
@@ -27,7 +13,7 @@ local function createKVPairs(inputstr)
   end
   --- Split rows into key value pairs separated by colons
   for _, v in pairs(rows) do
-    ---@type table<string>
+    ---@type string, string
     local x, y = string.match(v, '"(.+)":"(.+)"');
     kvPairs[x] = y;
   end
@@ -43,30 +29,49 @@ local function fixColonAttributes(div)
   if (vbind) then
     local values = createKVPairs(vbind)
     for k, v in pairs(values) do
-      div.attributes["v-bind:" ..  string.gsub(k, '"', "")] = string.gsub(v, '"', "");
+      div.attributes["v-bind:" ..  k] = v;
     end
   end
   if (von) then
     local values = createKVPairs(von)
     for k, v in pairs(values) do
-      div.attributes["v-on:" .. string.gsub(k, '"', "")] = string.gsub(v, '"', "");
+      div.attributes["v-on:" .. k] = v;
     end
   end
   return div;
 end
 
-function Header(el)
-  if kIsHTML then
-    return fixColonAttributes(el);
-  else
-    return el;
-  end
-end
-
-function Div(el)
-  if kIsHTML then
-    return fixColonAttributes(el);
-  else
-    return el;
-  end
-end
+return {
+    {
+    Header = function(header)
+      if kIsHTML then
+        return fixColonAttributes(header);
+      else
+        return header;
+      end
+    end,
+    Div = function(div)
+      if kIsHTML then
+        return fixColonAttributes(div);
+      else
+        return div;
+      end
+    end,
+    Meta = function(meta)
+      if (kIsHTML) then
+        quarto.doc.add_html_dependency({
+          name = "petite-vue",
+          version = "0.2.2",
+          scripts = {
+            {
+              path = "resources/scripts/fix-attrs.js"
+            },
+            {
+              path = "resources/scripts/petite-vue.iife.js",
+            }
+          }
+        })
+      end
+    end
+  }
+}
