@@ -35,5 +35,10 @@ document.addEventListener("DOMContentLoaded", function() {
         })
     });
 
-    PetiteVue.createApp().mount()
+    if (document.getElementById("petite-vue-data")) {
+        const data = JSON.parse(document.getElementById("petite-vue-data").text);
+        PetiteVue.createApp(data.scope).mount(data.mount)
+    } else {
+        PetiteVue.createApp().mount()
+    }
 })

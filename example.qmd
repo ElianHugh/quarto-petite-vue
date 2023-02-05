@@ -1,54 +1,284 @@
 ---
 title: "petite-vue Example"
+echo: false
+format:
+  html:
+    toc: true
 filters:
   - petite-vue
+petite-vue:
+  mount: "#quarto-content"
 ---
 
-:::{v-scope="{ showPlot: false, showTable: false, textbox: '' }"}
+# Examples
 
-## v-model
+## SVG
+
+::: {v-scope="svgOpts"}
+
+{{ svg }}
+
+```{=html}
+<style>
+  body {
+    font-family: Helvetica Neue, Arial, sans-serif;
+  }
+
+  polygon {
+    fill: #42b983;
+    opacity: 0.75;
+  }
+
+  circle {
+    fill: transparent;
+    stroke: #999;
+  }
+
+  text {
+    font-family: Helvetica Neue, Arial, sans-serif;
+    font-size: 10px;
+    fill: #666;
+  }
+
+  label {
+    display: inline-block;
+    margin-left: 10px;
+    width: 20px;
+  }
+
+  #raw {
+    position: absolute;
+    top: 0;
+    left: 300px;
+  }
+</style>
+<script>
+function valueToPoint(value, index, total) {
+    var x = 0
+    var y = -value * 0.8
+    var angle = ((Math.PI * 2) / total) * index
+    var cos = Math.cos(angle)
+    var sin = Math.sin(angle)
+    var tx = x * cos - y * sin + 100
+    var ty = x * sin + y * cos + 100
+
+    if (ty < 0) debugger
+    return {
+      x: tx,
+      y: ty
+    }
+  }
+svgOpts = {
+    newLabel: '',
+    stats: [
+      { label: 'A', value: 100 },
+      { label: 'B', value: 100 },
+      { label: 'C', value: 100 },
+      { label: 'D', value: 100 },
+      { label: 'E', value: 100 },
+      { label: 'F', value: 100 }
+    ],
+
+    get pointsString() {
+      return this.getPoints()
+        .map(({ x, y }) => `${x},${y}`)
+        .join(' ')
+    },
+
+    getPoints(offset = 0) {
+      const total = this.stats.length
+      return this.stats.map((stat, i) => ({
+        ...valueToPoint(+stat.value + offset, i, total),
+        label: stat.label
+      }))
+    },
+
+    add(e) {
+      e.preventDefault()
+      if (!this.newLabel) return
+      this.stats.push({
+        label: this.newLabel,
+        value: 100
+      })
+      this.newLabel = ''
+    },
+
+    remove(stat) {
+      if (this.stats.length > 3) {
+        this.stats.splice(this.stats.indexOf(stat), 1)
+      } else {
+        alert("Can't delete more!")
+      }
+    }
+  }
+</script>
+```
+
 
 ```{r}
+#| panel: center
+htmltools::withTags(
+  htmltools::tagList(
+    svg(
+      width="200",
+      height="200",
+      g(
+        polygon(":points"="pointsString"),
+        circle(cx="100", cy="100", r="80"),
+        text(
+          "v-for" = "{ x, y, label } in getPoints(10)",
+          ":x"="x",
+          ":y"="y",
+          "{{ label }}"
+        )
+      )
+    )
+  )
+)
+```
+
+::: {.panel-input}
+
+```{r}
+#| v-for: stat in stats
+htmltools::withTags(
+  htmltools::tagList(
+    label("{{stat.label}}"),
+    input(
+      type = "range",
+      "v-model" = "stat.value",
+      min = 0,
+      max = 100
+    ),
+    span("{{stat.value}}"),
+    button("@click" = "remove(stat)", class="remove", "X")
+  )
+)
+```
+
+```{r}
+htmltools::withTags(
+  htmltools::tagList(
+    form(
+      id = "add",
+      input(
+        name = "newlabel",
+        "v-model" = "newLabel"
+      ),
+      button(
+        "@click" = "add",
+        "Add a stat"
+      )
+    )
+  )
+)
+```
+
+:::
+
+:::
+
+## Grid
+
+::: {v-scope="gridOpts"}
+
+```{=html}
+<script>
+const columns = ['name', 'power']
+const data = [
+    { name: 'Chuck Norris', power: Infinity },
+    { name: 'Bruce Lee', power: 9000 },
+    { name: 'Jackie Chan', power: 7000 },
+    { name: 'Jet Li', power: 8000 }
+]
+
+const gridOpts = {
+    query: '',
+    columns,
+    data,
+    sortKey: '',
+    sortOrders: columns.reduce((o, key) => ((o[key] = 1), o), {}),
+
+    get filteredData() {
+      const sortKey = this.sortKey
+      const filterKey = this.query && this.query.toLowerCase()
+      const order = this.sortOrders[sortKey] || 1
+      let data = this.data
+      if (filterKey) {
+        data = data.filter((row) => {
+          return Object.keys(row).some((key) => {
+            return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+          })
+        })
+      }
+      if (sortKey) {
+        data = data.slice().sort((a, b) => {
+          a = a[sortKey]
+          b = b[sortKey]
+          return (a === b ? 0 : a > b ? 1 : -1) * order
+        })
+      }
+      return data
+    },
+
+    sortBy(key) {
+      this.sortKey = key
+      this.sortOrders[key] = this.sortOrders[key] * -1
+    },
+
+    capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1)
+    }
+  }
+
+
+</script>
+```
+
+```{r}
+#| panel: sidebar
+htmltools::withTags(
 htmltools::tagList(
-  htmltools::tags$input("v-model" = "textbox"),
-  htmltools::p("Input is: {{ textbox }}")
+  form(
+      id = "search",
+      "Search",
+      input(
+        name = "query",
+        "v-model" = "query"
+      )
+    )
 )
-```
-
-## v-on, v-bind, v-show
-```{r}
-#| v-on:
-#|    click: "showPlot = !showPlot"
-#| v-bind:
-#|    class: "showPlot ? 'active' : 'inactive'"
-htmltools::tags$button("Toggle plot ({{ showPlot ? 'active' : 'inactive'}})")
-```
-
-```{r}
-#| v-show: "showPlot"
-plot(sin(seq(0, 50, 0.1)))
-```
-
-## v-if, v-else
-
-```{r}
-#| v-on:
-#|    click: "showTable = !showTable"
-htmltools::tags$button(
-  "Toggle table ({{ showTable ? 'active' : 'inactive'}})"
 )
 ```
 
 ```{r}
-#| v-if: "showTable"
-mtcars
-```
-
-```{r}
-#| v-else: ""
-htmltools::div(
-  "v-for" = sprintf("row in %s", jsonlite::toJSON(mtcars[1:5, ])),
-  htmltools::div("{{ row._row }}")
+#| panel: center
+htmltools::withTags(
+  htmltools::tagList(
+    table(
+      "v-if" = "filteredData.length",
+      thead(
+        tr(
+          th(
+            "v-for" = "key in columns",
+            "@click" = "sortBy(key)",
+            "{{ capitalize(key) }}",
+            span()
+          )
+        )
+      ),
+      tbody(
+        tr(
+          "v-for" = "entry in filteredData",
+          td(
+            "v-for" = "key in columns",
+            "{{entry[key]}}"
+          )
+        )
+      )
+    ),
+    p("v-else" = "", "No matches found.")
+  )
 )
 ```
 
